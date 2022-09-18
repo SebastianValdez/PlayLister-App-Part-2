@@ -77,7 +77,24 @@ export default class SongCard extends React.Component {
                 onDrop={this.handleDrop}
                 draggable="true"
             >
-                {song.title} by {song.artist}
+
+                {/* // ! PART 1.3 - ADD THE LINK AND NUMBER */ }
+
+                <div>
+                    {num + '. '}
+                    <a href={"https://www.youtube.com/watch?v=" + song.youTubeId}>
+                        <span> {song.title} by {song.artist} </span>
+                    </a>
+                </div>
+                
+                {/* // ! PART 1.2 - ADD THE X BUTTON */ }
+
+                <input
+                    type="button"
+                    id="remove-song-button"
+                    value={'✕'} 
+                />
+                
             </div>
         )
     }

@@ -87,8 +87,8 @@ export default class ListCard extends React.Component {
                         id={"delete-list-" + keyNamePair.key}
                         className="list-card-button"
                         onClick={this.handleDeleteList}
-                        value={"\u2715"} />
-                </div>
+                        value={"🗑"} /> {/* // ! Part 1.1 - Changed the X to trash can */}
+                </div> 
             );
         }
     }

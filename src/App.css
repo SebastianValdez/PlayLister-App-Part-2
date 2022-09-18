@@ -13,13 +13,14 @@
   --bounceEasing: cubic-bezier(0.51, 0.92, 0.24, 1.15);
 }
 
+
 body {
   background-color: var(--swatch-foundation);
 }
 
 #root {
   background-color: var(--swatch-primary);
-  font-family: serif;
+  font-family: 'Tangerine', serif; /* ! Added the new font */
   position: absolute;
   width: 80%;
   left: 10%;
@@ -109,7 +110,7 @@ body {
 }
 
 .list-card, .selected-list-card, .unselected-list-card {
-  font-size: 18pt;
+  font-size: 32pt;
   margin: 10px;
   padding: 20px;
   border-radius: 25px;
@@ -153,17 +154,41 @@ body {
   cursor: not-allowed;
 }
 
+/* ! Part 1.3  - Formatting the song cards properly */
+
 .playlister-song, .playlister-song-dragged-to { 
   display:flex;
   align-items: center;
-  font-size: 24pt;
-  height:20%;
+  font-size: 32pt;
+
+  margin: 10px;
+  padding: 20px;
+  border-radius: 25px;
+
+  display: flex;
+  justify-content: space-between;
 }
+
+.playlister-song {
+  background-color: var(--swatch-complement);
+  
+}
+
+.playlister-song:hover {
+  background-color: var(--swatch-contrast);
+  display: flex;
+  color:white;
+}
+
+.remove-song-button {
+  float: right;
+}
+
+/* ! My changes end here */
 
 input {
-  font-size:20pt;
+  font-size:30pt;
 }
-
 
 /* THIS STYLE SHEET MANAGES STYLE FOR OUR MODAL, i.e. DIALOG BOX */
 
@@ -208,6 +233,9 @@ input {
   padding: 1rem;
 }
 
+
+/* ! PART 1.4 - CHANGED THE SIZE OF THE MODAL BY DECREASING TEXT SIZE */
+
 .modal-north {
   font-size:32pt;
   font-weight: bold;
@@ -220,7 +248,7 @@ input {
   grid-template-columns: 30% 65%;
   grid-template-rows: 33% 33% 33%;
   gap: 10px 20px;
-  font-size: 48pt;
+  font-size: 40pt;
 }
 
 span {
