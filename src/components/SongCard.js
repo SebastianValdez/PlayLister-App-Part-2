@@ -93,6 +93,7 @@ export default class SongCard extends React.Component {
                     type="button"
                     id="remove-song-button"
                     value={'✕'} 
+                    //onClick={}
                 />
                 
             </div>

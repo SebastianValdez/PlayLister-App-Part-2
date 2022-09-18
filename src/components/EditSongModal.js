@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 
-export default class DeleteListModal extends Component {
+export default class EditSongModal extends Component {
   render() {
-    const { listKeyPair, deleteListCallback, hideDeleteListModalCallback } =
+    const { listKeyPair, editSongCallback, hideEditSongModalCallback } =
       this.props;
     let name = "";
     if (listKeyPair) {
       name = listKeyPair.name;
     }
+
     return (
       <div class="modal" id="delete-list-modal" data-animation="slideInOutLeft">
         <div class="modal-root" id="verify-delete-list-root">
@@ -19,17 +20,26 @@ export default class DeleteListModal extends Component {
           </div>
           <div class="modal-south">
             <input
-              type="button"
+              type="text"
               id="delete-list-confirm-button"
               class="modal-button"
-              onClick={deleteListCallback}
+              // onClick={}
               value="Confirm"
             />
+
             <input
-              type="button"
+              type="text"
               id="delete-list-cancel-button"
               class="modal-button"
-              onClick={hideDeleteListModalCallback}
+              // onClick={}
+              value="Cancel"
+            />
+
+            <input
+              type="text"
+              id="delete-list-cancel-button"
+              class="modal-button"
+              onClick={hideEditSongModalCallback}
               value="Cancel"
             />
           </div>
