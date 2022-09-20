@@ -39,6 +39,7 @@ class App extends React.Component {
       listKeyPairMarkedForDeletion: null,
       currentList: null,
       sessionData: loadedSessionData,
+      songIndex: null, // ! Added for deleting and editing the song so we know the index
     };
   }
   sortKeyNamePairsByName = (keyNamePairs) => {
@@ -311,6 +312,53 @@ class App extends React.Component {
     this.setStateWithUpdatedList(list);
   };
 
+  // ! Part 3 - METHODS TO REMOVE A SONG FROM THE CURRENT LIST
+  // ! Changes that state variable that determines which index of song we delete in the current list
+  markIndexForSongDeletion = (songIndex) => {
+    this.setState(
+      (prevState) => ({
+        currentList: prevState.currentList,
+        listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+        sessionData: prevState.sessionData,
+        songIndex: songIndex,
+      }),
+      () => {
+        // PROMPT THE USER
+        console.log(this.state.songIndex);
+        this.showDeleteSongModal();
+      }
+    );
+  };
+
+  deleteSong = (index) => {
+    let list = this.state.currentList;
+    let songs = list.songs;
+    let newSongsList = [];
+
+    for (let i = 0; i < songs.length; i++) {
+      if (i != index) {
+        newSongsList.push(songs[i]);
+      }
+    }
+    list.songs = newSongsList;
+    this.setStateWithUpdatedList(list);
+    this.hideDeleteSongModal();
+  };
+
+  showDeleteSongModal(index) {
+    let modal = document.getElementById("delete-song-modal");
+    modal.setAttribute("value", index);
+    modal.classList.add("is-visible");
+  }
+
+  hideDeleteSongModal() {
+    let modal = document.getElementById("delete-song-modal");
+    modal.classList.remove("is-visible");
+  }
+
+  // ! Part 2 - METHODS TO EDIT A SONG FROM THE CURRENT LIST
+  // ! Changes that state variable that determines which index of song we delete in the current list
+
   render() {
     let canAddSong = this.state.currentList !== null;
     let canUndo = this.tps.hasTransactionToUndo();
@@ -340,6 +388,7 @@ class App extends React.Component {
         <PlaylistCards
           currentList={this.state.currentList}
           moveSongCallback={this.addMoveSongTransaction}
+          markIndexForSongDeletion={this.markIndexForSongDeletion}
         />
         <Statusbar currentList={this.state.currentList} />
         <DeleteListModal
@@ -348,8 +397,9 @@ class App extends React.Component {
           deleteListCallback={this.deleteMarkedList}
         />
         <DeleteSongModal
-          deleteSongCallback={this.deleteSong}
           hideDeleteSongModalCallback={this.hideDeleteSongModal}
+          songIndex={this.state.songIndex}
+          deleteSongCallback={this.deleteSong}
         />
         {/* <EditSongModal /> */}
       </div>
