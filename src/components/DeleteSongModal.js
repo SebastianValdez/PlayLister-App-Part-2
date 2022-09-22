@@ -30,7 +30,6 @@ export default class DeleteSongModal extends Component {
               id="delete-song-confirm-button"
               class="modal-button"
               onClick={() => {
-                console.log(songIndex);
                 deleteSongCallback(songIndex);
               }}
               value="Confirm"

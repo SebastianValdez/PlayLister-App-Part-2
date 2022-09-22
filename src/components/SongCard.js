@@ -77,6 +77,9 @@ export default class SongCard extends React.Component {
         onDragLeave={this.handleDragLeave}
         onDrop={this.handleDrop}
         draggable="true"
+        onDoubleClick={() => {
+          this.props.markIndexForSongEditingCallback(num - 1);
+        }}
       >
         {/* // ! PART 1.3 - ADD THE LINK AND NUMBER */}
 

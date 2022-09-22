@@ -7,6 +7,9 @@ import jsTPS from "./common/jsTPS.js";
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from "./transactions/MoveSong_Transaction.js";
+import AddSong_Transaction from "./transactions/AddSong_Transaction"; // ! Add
+import EditSong_Transaction from "./transactions/EditSong_Transaction"; // ! Edit
+import DeleteSongTransaction from "./transactions/DeleteSong_Transaction"; // ! Delete
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from "./components/DeleteListModal.js";
@@ -324,7 +327,7 @@ class App extends React.Component {
       }),
       () => {
         // PROMPT THE USER
-        console.log(this.state.songIndex);
+        console.log("Hi", this.state.songIndex);
         this.showDeleteSongModal();
       }
     );
@@ -334,6 +337,7 @@ class App extends React.Component {
     let list = this.state.currentList;
     let songs = list.songs;
     let newSongsList = [];
+    let oldSong = list.songs[index];
 
     for (let i = 0; i < songs.length; i++) {
       if (i != index) {
@@ -343,11 +347,11 @@ class App extends React.Component {
     list.songs = newSongsList;
     this.setStateWithUpdatedList(list);
     this.hideDeleteSongModal();
+    return oldSong;
   };
 
-  showDeleteSongModal(index) {
+  showDeleteSongModal() {
     let modal = document.getElementById("delete-song-modal");
-    modal.setAttribute("value", index);
     modal.classList.add("is-visible");
   }
 
@@ -358,6 +362,81 @@ class App extends React.Component {
 
   // ! Part 2 - METHODS TO EDIT A SONG FROM THE CURRENT LIST
   // ! Changes that state variable that determines which index of song we delete in the current list
+  markIndexForSongEditing = (songIndex) => {
+    this.setState(
+      (prevState) => ({
+        currentList: prevState.currentList,
+        listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
+        sessionData: prevState.sessionData,
+        songIndex: songIndex,
+      }),
+      () => {
+        // PROMPT THE USER
+        console.log(this.state.songIndex);
+        this.showEditSongModal(songIndex);
+      }
+    );
+  };
+
+  editSong = (songindex, songTitle, songArtist, songId) => {
+    let list = this.state.currentList;
+    list.songs[songindex].title = songTitle;
+    list.songs[songindex].artist = songArtist;
+    list.songs[songindex].youTubeId = songId;
+
+    this.setStateWithUpdatedList(list);
+    this.hideEditSongModal();
+  };
+
+  showEditSongModal() {
+    let modal = document.getElementById("edit-song-modal");
+
+    document.getElementById("edit-modal-title-input").value =
+      this.state.currentList.songs[this.state.songIndex].title;
+    document.getElementById("edit-modal-artist-input").value =
+      this.state.currentList.songs[this.state.songIndex].artist;
+    document.getElementById("edit-modal-id-input").value =
+      this.state.currentList.songs[this.state.songIndex].youTubeId;
+
+    modal.classList.add("is-visible");
+  }
+
+  hideEditSongModal() {
+    let modal = document.getElementById("edit-song-modal");
+    modal.classList.remove("is-visible");
+  }
+
+  // ! PART 5 - ADDING IN UNDO AND REDO FUNCTIONALITY
+
+  addSongTransaction = () => {
+    let transaction = new AddSong_Transaction(this);
+    this.tps.addTransaction(transaction);
+  };
+
+  editSongTransaction = (index, songTitle, songArtist, songId) => {
+    let transaction = new EditSong_Transaction(
+      this,
+      index,
+      this.state.currentList.songs[index].title,
+      this.state.currentList.songs[index].artist,
+      this.state.currentList.songs[index].youTubeId,
+      songTitle,
+      songArtist,
+      songId
+    );
+    this.tps.addTransaction(transaction);
+  };
+
+  deleteSongTransaction = (index) => {
+    let transaction = new DeleteSongTransaction(this, index);
+    this.tps.addTransaction(transaction);
+  };
+
+  addOldSong = (index, song) => {
+    let list = this.state.currentList;
+    list.songs.splice(index, 0, song);
+    this.setStateWithUpdatedList(list);
+  };
 
   render() {
     let canAddSong = this.state.currentList !== null;
@@ -383,12 +462,13 @@ class App extends React.Component {
           undoCallback={this.undo}
           redoCallback={this.redo}
           closeCallback={this.closeCurrentList}
-          addSongCallback={this.addSongToCurrentList} // ! Part 3 - ADD A SONG TO THE CURRENT LIST
+          addSongCallback={this.addSongTransaction} // ! Part 3 - ADD A SONG TO THE CURRENT LIST
         />
         <PlaylistCards
           currentList={this.state.currentList}
           moveSongCallback={this.addMoveSongTransaction}
-          markIndexForSongDeletion={this.markIndexForSongDeletion}
+          markIndexForSongDeletion={this.markIndexForSongDeletion} // ! DELETE
+          markIndexForSongEditing={this.markIndexForSongEditing} // ! EDIT
         />
         <Statusbar currentList={this.state.currentList} />
         <DeleteListModal
@@ -398,10 +478,14 @@ class App extends React.Component {
         />
         <DeleteSongModal
           hideDeleteSongModalCallback={this.hideDeleteSongModal}
+          deleteSongCallback={this.deleteSongTransaction}
           songIndex={this.state.songIndex}
-          deleteSongCallback={this.deleteSong}
         />
-        {/* <EditSongModal /> */}
+        <EditSongModal
+          hideEditSongModalCallback={this.hideEditSongModal}
+          editSongCallBack={this.editSongTransaction}
+          songIndex={this.state.songIndex}
+        />
       </div>
     );
   }

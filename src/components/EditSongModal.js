@@ -2,45 +2,59 @@ import React, { Component } from "react";
 
 export default class EditSongModal extends Component {
   render() {
-    const { listKeyPair, editSongCallback, hideEditSongModalCallback } =
-      this.props;
+    const {
+      listKeyPair,
+      editSongCallBack,
+      hideEditSongModalCallback,
+      songIndex,
+    } = this.props;
     let name = "";
     if (listKeyPair) {
       name = listKeyPair.name;
     }
 
     return (
-      <div class="modal" id="delete-list-modal" data-animation="slideInOutLeft">
+      <div class="modal" id="edit-song-modal" data-animation="slideInOutLeft">
         <div class="modal-root" id="verify-delete-list-root">
-          <div class="modal-north">Delete playlist?</div>
+          <div class="modal-north">Edit Song</div>
           <div class="modal-center">
             <div class="modal-center-content">
-              Are you sure you wish to permanently delete the {name} playlist?
+              <label for="edit-modal-title-input">Title:</label>
+              <input type="text" id="edit-modal-title-input" />
+
+              <label for="edit-modal-artist-input">Artist:</label>
+              <input type="text" id="edit-modal-artist-input" />
+
+              <label for="edit-modal-id-input">YouTube ID:</label>
+              <input type="text" id="edit-modal-id-input" />
             </div>
           </div>
           <div class="modal-south">
             <input
-              type="text"
-              id="delete-list-confirm-button"
+              type="button"
+              id="edit-song-confirm-button"
               class="modal-button"
-              // onClick={}
               value="Confirm"
-            />
+              onClick={() => {
+                let title = document.getElementById(
+                  "edit-modal-title-input"
+                ).value;
+                let artist = document.getElementById(
+                  "edit-modal-artist-input"
+                ).value;
+                let youTubeId = document.getElementById(
+                  "edit-modal-id-input"
+                ).value;
 
+                editSongCallBack(songIndex, title, artist, youTubeId);
+              }}
+            />
             <input
-              type="text"
-              id="delete-list-cancel-button"
+              type="button"
+              id="edit-song-cancel-button"
               class="modal-button"
-              // onClick={}
               value="Cancel"
-            />
-
-            <input
-              type="text"
-              id="delete-list-cancel-button"
-              class="modal-button"
               onClick={hideEditSongModalCallback}
-              value="Cancel"
             />
           </div>
         </div>
