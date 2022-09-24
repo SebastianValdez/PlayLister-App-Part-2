@@ -29,7 +29,7 @@ class App extends React.Component {
     super(props);
 
     // THIS IS OUR TRANSACTION PROCESSING SYSTEM
-    this.tps = new jsTPS();
+    this.tps = new jsTPS(this);
 
     // THIS WILL TALK TO LOCAL STORAGE
     this.db = new DBManager();
@@ -93,6 +93,13 @@ class App extends React.Component {
 
         // SO IS STORING OUR SESSION DATA
         this.db.mutationUpdateSessionData(this.state.sessionData);
+
+        // ! PART 7
+        document.getElementById("add-song-button").disabled = false;
+        document.getElementById("undo-button").disabled = false;
+        document.getElementById("redo-button").disabled = false;
+        document.getElementById("close-button").disabled = false;
+        document.getElementById("add-list-button").disabled = true;
       }
     );
   };
@@ -115,6 +122,13 @@ class App extends React.Component {
     );
     let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
     if (keyIndex >= 0) newKeyNamePairs.splice(keyIndex, 1);
+
+    // ! PART 7 - IF WE DELETE THE LIST WE ARE CURRENTLY ON, DISABLE ALL THE SONG BUTTONS SINCE NO LIST IS OPEN
+    document.getElementById("add-song-button").disabled = true;
+    document.getElementById("undo-button").disabled = true;
+    document.getElementById("redo-button").disabled = true;
+    document.getElementById("close-button").disabled = true;
+    document.getElementById("add-list-button").disabled = false;
 
     // AND FROM OUR APP STATE
     this.setState(
@@ -196,6 +210,13 @@ class App extends React.Component {
         // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
         // THE TRANSACTION STACK IS CLEARED
         this.tps.clearAllTransactions();
+
+        // ! PART 7 - WHEN THE SITE FIRST LOADS, ALL THE SONG BUTTONS SHOULD BE DISABLED SINCE NO LIST SHOULD BE OPEN, ONLY ADD PLAYLIST IS ENABLED
+        document.getElementById("add-song-button").disabled = false;
+        document.getElementById("undo-button").disabled = true;
+        document.getElementById("redo-button").disabled = true;
+        document.getElementById("close-button").disabled = false;
+        document.getElementById("add-list-button").disabled = true;
       }
     );
   };
@@ -211,6 +232,13 @@ class App extends React.Component {
         // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
         // THE TRANSACTION STACK IS CLEARED
         this.tps.clearAllTransactions();
+
+        // ! PART 7 - WHEN YOU CLOSE A LIST, ALL THE SONG BUTTONS SHOULD BE DISABLED SINCE NO LIST SHOULD BE OPEN, ONLY ADD PLAYLIST IS ENABLED
+        document.getElementById("add-song-button").disabled = true;
+        document.getElementById("undo-button").disabled = true;
+        document.getElementById("redo-button").disabled = true;
+        document.getElementById("close-button").disabled = true;
+        document.getElementById("add-list-button").disabled = false;
       }
     );
   };
@@ -292,15 +320,17 @@ class App extends React.Component {
   };
   // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
   // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
-  showDeleteListModal() {
+  showDeleteListModal = () => {
     let modal = document.getElementById("delete-list-modal");
     modal.classList.add("is-visible");
-  }
+    this.openModal();
+  };
   // THIS FUNCTION IS FOR HIDING THE MODAL
-  hideDeleteListModal() {
+  hideDeleteListModal = () => {
     let modal = document.getElementById("delete-list-modal");
     modal.classList.remove("is-visible");
-  }
+    this.closeModal();
+  };
 
   // ! Part 4 - METHOD TO ADD A NEW SONG TO THE CURRENT LIST
   addSongToCurrentList = () => {
@@ -350,15 +380,17 @@ class App extends React.Component {
     return oldSong;
   };
 
-  showDeleteSongModal() {
+  showDeleteSongModal = () => {
     let modal = document.getElementById("delete-song-modal");
     modal.classList.add("is-visible");
-  }
+    this.openModal();
+  };
 
-  hideDeleteSongModal() {
+  hideDeleteSongModal = () => {
     let modal = document.getElementById("delete-song-modal");
     modal.classList.remove("is-visible");
-  }
+    this.closeModal();
+  };
 
   // ! Part 2 - METHODS TO EDIT A SONG FROM THE CURRENT LIST
   // ! Changes that state variable that determines which index of song we delete in the current list
@@ -388,7 +420,7 @@ class App extends React.Component {
     this.hideEditSongModal();
   };
 
-  showEditSongModal() {
+  showEditSongModal = () => {
     let modal = document.getElementById("edit-song-modal");
 
     document.getElementById("edit-modal-title-input").value =
@@ -399,12 +431,14 @@ class App extends React.Component {
       this.state.currentList.songs[this.state.songIndex].youTubeId;
 
     modal.classList.add("is-visible");
-  }
+    this.openModal();
+  };
 
-  hideEditSongModal() {
+  hideEditSongModal = () => {
     let modal = document.getElementById("edit-song-modal");
     modal.classList.remove("is-visible");
-  }
+    this.closeModal();
+  };
 
   // ! PART 5 - ADDING IN UNDO AND REDO FUNCTIONALITY
 
@@ -438,8 +472,58 @@ class App extends React.Component {
     this.setStateWithUpdatedList(list);
   };
 
+  // ! PART 7 - THESE TWO METHODS WILL BE USED TO ENABLE AND DISABLE BUTTONS
+  disableButton(id) {
+    let button = document.getElementById(id);
+    button.classList.add("disabled");
+    button.disabled = true;
+  }
+
+  enableButton(id) {
+    let button = document.getElementById(id);
+    button.classList.remove("disabled");
+    button.disabled = false;
+  }
+
+  openModal = () => {
+    this.disableButton("add-list-button");
+    this.disableButton("undo-button");
+    this.disableButton("redo-button");
+    this.disableButton("close-button");
+    this.disableButton("add-song-button");
+  };
+
+  closeModal = () => {
+    if (this.currentList === null) {
+      this.enableButton("add-list-button");
+    } else {
+      this.disableButton("add-list-button");
+    }
+
+    this.tps.enableOrDisableUndoButton();
+    this.tps.enableOrDisableRedoButton();
+
+    if (this.currentList !== null) {
+      this.enableButton("close-button");
+    } else {
+      this.disableButton("close-button");
+    }
+
+    if (this.currentList !== null) {
+      this.enableButton("add-song-button");
+    } else {
+      this.disableButton("add-song-button");
+    }
+  };
+
   // ! PART 6 - ADDING UNDO AND REDO USING KEYBOARD INPUTS
   componentDidMount() {
+    // ! PART 7 - WHEN THE SITE FIRST LOADS, ALL THE SONG BUTTONS SHOULD BE DISABLED SINCE NO LIST SHOULD BE OPEN, ONLY ADD PLAYLIST IS ENABLED
+    document.getElementById("add-song-button").disabled = true;
+    document.getElementById("undo-button").disabled = true;
+    document.getElementById("redo-button").disabled = true;
+    document.getElementById("close-button").disabled = true;
+
     document.addEventListener("keydown", (event) => {
       if (event.ctrlKey && event.key === "z") {
         this.undo();
