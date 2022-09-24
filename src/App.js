@@ -200,6 +200,7 @@ class App extends React.Component {
   // THIS FUNCTION BEGINS THE PROCESS OF LOADING A LIST FOR EDITING
   loadList = (key) => {
     let newCurrentList = this.db.queryGetList(key);
+    let oldCurrentList = this.state.currentList; // ! PART 7 - DONT CLEAR THE STACK IF WE DONT CHANGE LISTS
     this.setState(
       (prevState) => ({
         listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
@@ -209,12 +210,15 @@ class App extends React.Component {
       () => {
         // AN AFTER EFFECT IS THAT WE NEED TO MAKE SURE
         // THE TRANSACTION STACK IS CLEARED
-        this.tps.clearAllTransactions();
+        if (oldCurrentList) {
+          console.log("new ", key);
+          console.log("old ", oldCurrentList.key);
+        }
+        if (oldCurrentList && oldCurrentList.key != key)
+          this.tps.clearAllTransactions();
 
         // ! PART 7 - WHEN THE SITE FIRST LOADS, ALL THE SONG BUTTONS SHOULD BE DISABLED SINCE NO LIST SHOULD BE OPEN, ONLY ADD PLAYLIST IS ENABLED
         document.getElementById("add-song-button").disabled = false;
-        document.getElementById("undo-button").disabled = true;
-        document.getElementById("redo-button").disabled = true;
         document.getElementById("close-button").disabled = false;
         document.getElementById("add-list-button").disabled = true;
       }
