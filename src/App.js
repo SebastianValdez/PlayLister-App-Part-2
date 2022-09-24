@@ -438,6 +438,17 @@ class App extends React.Component {
     this.setStateWithUpdatedList(list);
   };
 
+  // ! PART 6 - ADDING UNDO AND REDO USING KEYBOARD INPUTS
+  componentDidMount() {
+    document.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.key === "z") {
+        this.undo();
+      } else if (event.ctrlKey && event.key === "y") {
+        this.redo();
+      }
+    });
+  }
+
   render() {
     let canAddSong = this.state.currentList !== null;
     let canUndo = this.tps.hasTransactionToUndo();
