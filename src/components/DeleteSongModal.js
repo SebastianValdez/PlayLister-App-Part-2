@@ -3,16 +3,14 @@ import React, { Component } from "react";
 export default class DeleteSongModal extends Component {
   render() {
     const {
-      listKeyPair,
       deleteSongCallback,
       hideDeleteSongModalCallback,
       songIndex,
+      songKeyPairMarkedForDeletion,
     } = this.props;
 
     let name = "";
-    if (listKeyPair) {
-      name = listKeyPair.name;
-    }
+    if (songKeyPairMarkedForDeletion) name = songKeyPairMarkedForDeletion.value;
 
     return (
       <div class="modal" id="delete-song-modal" data-animation="slideInOutLeft">

@@ -85,7 +85,10 @@ export default class SongCard extends React.Component {
 
         <div>
           {num + ". "}
-          <a href={"https://www.youtube.com/watch?v=" + song.youTubeId}>
+          <a
+            id={"song-" + num}
+            href={"https://www.youtube.com/watch?v=" + song.youTubeId}
+          >
             <span>
               {" "}
               {song.title} by {song.artist}{" "}

@@ -43,6 +43,7 @@ class App extends React.Component {
       currentList: null,
       sessionData: loadedSessionData,
       songIndex: null, // ! Added for deleting and editing the song so we know the index
+      songKeyPairMarkedForDeletion: null,
     };
   }
   sortKeyNamePairsByName = (keyNamePairs) => {
@@ -96,8 +97,8 @@ class App extends React.Component {
 
         // ! PART 7
         document.getElementById("add-song-button").disabled = false;
-        document.getElementById("undo-button").disabled = false;
-        document.getElementById("redo-button").disabled = false;
+        document.getElementById("undo-button").disabled = true;
+        document.getElementById("redo-button").disabled = true;
         document.getElementById("close-button").disabled = false;
         document.getElementById("add-list-button").disabled = true;
       }
@@ -123,13 +124,6 @@ class App extends React.Component {
     let newKeyNamePairs = [...this.state.sessionData.keyNamePairs];
     if (keyIndex >= 0) newKeyNamePairs.splice(keyIndex, 1);
 
-    // ! PART 7 - IF WE DELETE THE LIST WE ARE CURRENTLY ON, DISABLE ALL THE SONG BUTTONS SINCE NO LIST IS OPEN
-    document.getElementById("add-song-button").disabled = true;
-    document.getElementById("undo-button").disabled = true;
-    document.getElementById("redo-button").disabled = true;
-    document.getElementById("close-button").disabled = true;
-    document.getElementById("add-list-button").disabled = false;
-
     // AND FROM OUR APP STATE
     this.setState(
       (prevState) => ({
@@ -148,6 +142,13 @@ class App extends React.Component {
 
         // SO IS STORING OUR SESSION DATA
         this.db.mutationUpdateSessionData(this.state.sessionData);
+
+        // ! PART 7 - IF WE DELETE THE LIST WE ARE CURRENTLY ON, DISABLE ALL THE SONG BUTTONS SINCE NO LIST IS OPEN
+        document.getElementById("add-song-button").disabled = true;
+        document.getElementById("undo-button").disabled = true;
+        document.getElementById("redo-button").disabled = true;
+        document.getElementById("close-button").disabled = true;
+        document.getElementById("add-list-button").disabled = false;
       }
     );
   };
@@ -214,8 +215,11 @@ class App extends React.Component {
           console.log("new ", key);
           console.log("old ", oldCurrentList.key);
         }
-        if (oldCurrentList && oldCurrentList.key != key)
+        if (oldCurrentList && oldCurrentList.key != key) {
           this.tps.clearAllTransactions();
+          document.getElementById("undo-button").disabled = true;
+          document.getElementById("redo-button").disabled = true;
+        }
 
         // ! PART 7 - WHEN THE SITE FIRST LOADS, ALL THE SONG BUTTONS SHOULD BE DISABLED SINCE NO LIST SHOULD BE OPEN, ONLY ADD PLAYLIST IS ENABLED
         document.getElementById("add-song-button").disabled = false;
@@ -358,6 +362,10 @@ class App extends React.Component {
         listKeyPairMarkedForDeletion: prevState.listKeyPairMarkedForDeletion,
         sessionData: prevState.sessionData,
         songIndex: songIndex,
+        songKeyPairMarkedForDeletion: {
+          id: songIndex,
+          value: this.state.currentList.songs[songIndex].title,
+        },
       }),
       () => {
         // PROMPT THE USER
@@ -498,7 +506,7 @@ class App extends React.Component {
   };
 
   closeModal = () => {
-    if (this.currentList === null) {
+    if (this.state.currentList === null) {
       this.enableButton("add-list-button");
     } else {
       this.disableButton("add-list-button");
@@ -507,16 +515,16 @@ class App extends React.Component {
     this.tps.enableOrDisableUndoButton();
     this.tps.enableOrDisableRedoButton();
 
-    if (this.currentList !== null) {
-      this.enableButton("close-button");
-    } else {
+    if (this.state.currentList === null) {
       this.disableButton("close-button");
+    } else {
+      this.enableButton("close-button");
     }
 
-    if (this.currentList !== null) {
-      this.enableButton("add-song-button");
-    } else {
+    if (this.state.currentList === null) {
       this.disableButton("add-song-button");
+    } else {
+      this.enableButton("add-song-button");
     }
   };
 
@@ -529,9 +537,9 @@ class App extends React.Component {
     document.getElementById("close-button").disabled = true;
 
     document.addEventListener("keydown", (event) => {
-      if (event.ctrlKey && event.key === "z") {
+      if (event.ctrlKey && (event.key === "z" || event.key === "Z")) {
         this.undo();
-      } else if (event.ctrlKey && event.key === "y") {
+      } else if (event.ctrlKey && (event.key === "y" || event.key === "Y")) {
         this.redo();
       }
     });
@@ -579,6 +587,7 @@ class App extends React.Component {
           hideDeleteSongModalCallback={this.hideDeleteSongModal}
           deleteSongCallback={this.deleteSongTransaction}
           songIndex={this.state.songIndex}
+          songKeyPairMarkedForDeletion={this.state.songKeyPairMarkedForDeletion}
         />
         <EditSongModal
           hideEditSongModalCallback={this.hideEditSongModal}

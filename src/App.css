@@ -233,7 +233,6 @@ input {
   padding: 1rem;
 }
 
-
 /* ! PART 1.4 - CHANGED THE SIZE OF THE MODAL BY DECREASING TEXT SIZE */
 
 .modal-north {
@@ -280,6 +279,12 @@ span {
 
 .modal-button {
   font-size: 20pt;
+}
+
+/* ! CSS FOR THE EDIT SONG MODAL */
+#edit-song-inputs {
+  display: flex;
+  flex-direction: column;
 }
 
 #title-prompt {
