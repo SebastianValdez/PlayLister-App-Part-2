@@ -149,12 +149,13 @@ class App extends React.Component {
         document.getElementById("redo-button").disabled = true;
         document.getElementById("close-button").disabled = true;
         document.getElementById("add-list-button").disabled = false;
+
+        this.hideDeleteListModal();
       }
     );
   };
   deleteMarkedList = () => {
     this.deleteList(this.state.listKeyPairMarkedForDeletion.key);
-    this.hideDeleteListModal();
   };
   // THIS FUNCTION SPECIFICALLY DELETES THE CURRENT LIST
   deleteCurrentList = () => {
