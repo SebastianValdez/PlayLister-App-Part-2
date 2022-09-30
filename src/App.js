@@ -44,6 +44,7 @@ class App extends React.Component {
       sessionData: loadedSessionData,
       songIndex: null, // ! Added for deleting and editing the song so we know the index
       songKeyPairMarkedForDeletion: null,
+      modalIsOpen: false,
     };
   }
   sortKeyNamePairsByName = (keyNamePairs) => {
@@ -143,14 +144,18 @@ class App extends React.Component {
         // SO IS STORING OUR SESSION DATA
         this.db.mutationUpdateSessionData(this.state.sessionData);
 
-        // ! PART 7 - IF WE DELETE THE LIST WE ARE CURRENTLY ON, DISABLE ALL THE SONG BUTTONS SINCE NO LIST IS OPEN
-        document.getElementById("add-song-button").disabled = true;
-        document.getElementById("undo-button").disabled = true;
-        document.getElementById("redo-button").disabled = true;
-        document.getElementById("close-button").disabled = true;
-        document.getElementById("add-list-button").disabled = false;
-
         this.hideDeleteListModal();
+
+        // ! PART 7 - IF WE DELETE THE LIST WE ARE CURRENTLY ON, DISABLE ALL THE SONG BUTTONS SINCE NO LIST IS OPEN
+        if (!this.state.currentList) {
+          document.getElementById("add-song-button").disabled = true;
+          document.getElementById("undo-button").disabled = true;
+          document.getElementById("redo-button").disabled = true;
+          document.getElementById("close-button").disabled = true;
+          document.getElementById("add-list-button").disabled = false;
+        }
+
+        this.tps.clearAllTransactions();
       }
     );
   };
@@ -499,34 +504,48 @@ class App extends React.Component {
   }
 
   openModal = () => {
-    this.disableButton("add-list-button");
-    this.disableButton("undo-button");
-    this.disableButton("redo-button");
-    this.disableButton("close-button");
-    this.disableButton("add-song-button");
+    this.setState(
+      () => ({
+        modalIsOpen: true,
+      }),
+      () => {
+        this.disableButton("add-list-button");
+        this.disableButton("undo-button");
+        this.disableButton("redo-button");
+        this.disableButton("close-button");
+        this.disableButton("add-song-button");
+      }
+    );
   };
 
   closeModal = () => {
-    if (this.state.currentList === null) {
-      this.enableButton("add-list-button");
-    } else {
-      this.disableButton("add-list-button");
-    }
+    this.setState(
+      () => ({
+        modalIsOpen: false,
+      }),
+      () => {
+        if (this.state.currentList === null) {
+          this.enableButton("add-list-button");
+        } else {
+          this.disableButton("add-list-button");
+        }
 
-    this.tps.enableOrDisableUndoButton();
-    this.tps.enableOrDisableRedoButton();
+        this.tps.enableOrDisableUndoButton();
+        this.tps.enableOrDisableRedoButton();
 
-    if (this.state.currentList === null) {
-      this.disableButton("close-button");
-    } else {
-      this.enableButton("close-button");
-    }
+        if (this.state.currentList === null) {
+          this.disableButton("close-button");
+        } else {
+          this.enableButton("close-button");
+        }
 
-    if (this.state.currentList === null) {
-      this.disableButton("add-song-button");
-    } else {
-      this.enableButton("add-song-button");
-    }
+        if (this.state.currentList === null) {
+          this.disableButton("add-song-button");
+        } else {
+          this.enableButton("add-song-button");
+        }
+      }
+    );
   };
 
   // ! PART 6 - ADDING UNDO AND REDO USING KEYBOARD INPUTS
@@ -538,10 +557,12 @@ class App extends React.Component {
     document.getElementById("close-button").disabled = true;
 
     document.addEventListener("keydown", (event) => {
-      if (event.ctrlKey && (event.key === "z" || event.key === "Z")) {
-        this.undo();
-      } else if (event.ctrlKey && (event.key === "y" || event.key === "Y")) {
-        this.redo();
+      if (!this.state.modalIsOpen) {
+        if (event.ctrlKey && (event.key === "z" || event.key === "Z")) {
+          this.undo();
+        } else if (event.ctrlKey && (event.key === "y" || event.key === "Y")) {
+          this.redo();
+        }
       }
     });
   }
