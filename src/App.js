@@ -153,9 +153,9 @@ class App extends React.Component {
           document.getElementById("redo-button").disabled = true;
           document.getElementById("close-button").disabled = true;
           document.getElementById("add-list-button").disabled = false;
-        }
 
-        this.tps.clearAllTransactions();
+          this.tps.clearAllTransactions();
+        }
       }
     );
   };
